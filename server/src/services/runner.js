@@ -1,4 +1,8 @@
-const RUNNER_URL = process.env.RUNNER_URL || 'http://localhost:8000';
+// Hosting platforms often hand over just "host:port", so add the scheme when it is missing.
+const RAW_RUNNER = process.env.RUNNER_URL || 'http://localhost:8000';
+const RUNNER_URL = (/^https?:\/\//.test(RAW_RUNNER) ? RAW_RUNNER : `http://${RAW_RUNNER}`).replace(/\/+$/, '');
+
+const AUTH = process.env.RUNNER_TOKEN ? { 'x-runner-token': process.env.RUNNER_TOKEN } : {};
 
 export class RunnerError extends Error {}
 
@@ -8,7 +12,7 @@ export async function runProgram(code, files = {}, data = {}) {
   try {
     r = await fetch(`${RUNNER_URL}/run`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', ...AUTH },
       body: JSON.stringify({ code, files, data }),
       signal: AbortSignal.timeout(40000),
     });
@@ -24,7 +28,7 @@ let infoCache = { at: 0, value: null };
 export async function runnerInfo() {
   if (infoCache.value && Date.now() - infoCache.at < 60000) return infoCache.value;
   try {
-    const r = await fetch(`${RUNNER_URL}/info`, { signal: AbortSignal.timeout(5000) });
+    const r = await fetch(`${RUNNER_URL}/info`, { headers: AUTH, signal: AbortSignal.timeout(5000) });
     if (!r.ok) return null;
     infoCache = { at: Date.now(), value: await r.json() };
     return infoCache.value;

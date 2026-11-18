@@ -15,7 +15,8 @@ import tempfile
 import threading
 import time
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 try:
@@ -37,6 +38,19 @@ except ImportError:
     pass
 
 app = FastAPI(title="TorchLab runner")
+
+# Optional shared secret. When RUNNER_TOKEN is set (public hosting), every call except /health must carry it.
+RUNNER_TOKEN = os.environ.get("RUNNER_TOKEN", "")
+
+
+@app.middleware("http")
+async def require_token(request: Request, call_next):
+    if RUNNER_TOKEN and request.url.path != "/health":
+        sent = request.headers.get("x-runner-token", "")
+        import hmac
+        if not hmac.compare_digest(sent, RUNNER_TOKEN):
+            return JSONResponse({"detail": "unauthorized"}, status_code=401)
+    return await call_next(request)
 
 
 FILE_NAME = re.compile(r"^[a-z][a-z0-9_]{0,40}\.py$")

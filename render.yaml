@@ -1,24 +1,12 @@
-# Render Blueprint: creates the database, code runner and API in one go.
-# Render dashboard -> New -> Blueprint -> pick this repo. Then fill the two "sync: false" values when asked.
-databases:
-  - name: torchlab-db
-    plan: free            # Render's free Postgres expires after 30 days; switch to a paid plan to keep data
-
+# Render Blueprint (free tier): creates only the API. The database is Neon (free) and the code runner is a
+# Hugging Face Space (free), see DEPLOY.md. Render dashboard -> New -> Blueprint -> pick this repo.
 services:
-  - type: web
-    name: torchlab-runner
-    runtime: docker
-    dockerfilePath: ./runner/Dockerfile
-    dockerContext: ./runner
-    plan: starter         # PyTorch needs more than the free 512 MB
-    healthCheckPath: /info
-
   - type: web
     name: torchlab-api
     runtime: docker
     dockerfilePath: ./server/Dockerfile
     dockerContext: ./server
-    plan: free
+    plan: free            # sleeps after 15 min idle; the first request after that takes ~1 minute
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
@@ -28,12 +16,14 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: DATABASE_URL
-        fromDatabase: { name: torchlab-db, property: connectionString }
+        sync: false       # Neon connection string
       - key: RUNNER_URL
-        fromService: { type: web, name: torchlab-runner, property: hostport }
+        sync: false       # https://<user>-<space>.hf.space
+      - key: RUNNER_TOKEN
+        sync: false       # same secret you set on the Hugging Face Space
       - key: ADMIN_EMAILS
         sync: false       # your email
       - key: APP_URL
-        sync: false       # your Vercel site URL, e.g. https://torchlab.vercel.app
+        sync: false       # your Vercel site URL
       - key: ANTHROPIC_API_KEY
-        sync: false       # optional, leave empty to hide AI help
+        sync: false       # optional

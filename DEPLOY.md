@@ -1,31 +1,29 @@
-# Deploying TorchLab
+# Deploying TorchLab for free
 
-**Fast path:** `render.yaml` in this folder creates the database, runner and API on Render in one step (Dashboard → New → Blueprint → choose your GitHub repo). Then do step 4 (Vercel). The manual steps below explain what it sets up.
+| Part | Host | Free tier notes |
+|---|---|---|
+| Website | Vercel | Hobby plan |
+| API | Render (Docker web service) | Sleeps after 15 min idle; ~1 min to wake |
+| Database | Neon Postgres | 0.5 GB, no expiry |
+| Code runner | Hugging Face Space (Docker) | 16 GB RAM CPU; sleeps after ~48 h idle |
 
-Vercel hosts the **website** (client). The API (Express), the database (Postgres) and the code runner (Python + PyTorch) are long-running services, so they go on a container host. Vercel then forwards `/api/*` to the API, which keeps the login cookie on one domain.
+Set one secret string (call it `RUNNER_TOKEN`, any long random text) and reuse it in steps 2 and 3.
 
-## 1. Database
-Create a hosted Postgres (Neon, Supabase, Render, Railway…). Copy its connection string. The schema applies itself on API start.
+## 1. Database (Neon)
+neon.tech -> create a project -> copy the connection string (ends with `?sslmode=require`). The schema applies itself when the API starts.
 
-## 2. Code runner
-Deploy `runner/` as a container (it has a Dockerfile) on Render, Railway, Fly.io or similar. It needs about 1 GB RAM for PyTorch. Do not expose it publicly: use the host's private networking, or at least keep its URL secret. Note its URL.
+## 2. Code runner (Hugging Face Space)
+1. huggingface.co -> New Space -> SDK **Docker** (Blank) -> CPU basic (free). Make it public.
+2. Upload the contents of the `runner/` folder (Dockerfile, app.py, requirements.txt, README.md) to the Space's files.
+3. Space Settings -> Variables and secrets -> New secret `RUNNER_TOKEN`.
+4. When it shows "Running", open `https://<user>-<space>.hf.space/health`. The Space URL is shown under "Embed this Space".
 
-## 3. API
-Deploy `server/` (has a Dockerfile). Environment variables:
-- `DATABASE_URL` = your Postgres string
-- `RUNNER_URL` = the runner URL from step 2
-- `JWT_SECRET` = a long random string (required; never reuse the dev value)
-- `NODE_ENV=production`, `TRUST_PROXY=1`
-- `APP_URL` = your Vercel site URL (used in emails)
-- `ADMIN_EMAILS` = your email
-- Optional: `ANTHROPIC_API_KEY`, `SMTP_URL` + `MAIL_FROM`, `GOOGLE_CLIENT_ID`
-Check `https://<api-host>/api/health` returns `{"ok":true}`.
+## 3. API (Render)
+Dashboard -> New -> Blueprint -> pick the repo. Fill in `DATABASE_URL`, `RUNNER_URL` (the .hf.space URL), `RUNNER_TOKEN`, `ADMIN_EMAILS`, `APP_URL` (placeholder for now). Open `https://<api>.onrender.com/api/health` -> `{"ok":true}`.
 
-## 4. Website on Vercel
-1. In `client/vercel.json` replace `YOUR-API-HOST` with the API host from step 3.
-2. Import the repo in Vercel, set **Root Directory** to `client`. Vercel detects Vite.
-3. Deploy. For Google sign-in, add the Vercel URL to the OAuth client's authorized origins.
+## 4. Website (Vercel)
+1. In `client/vercel.json` replace `YOUR-API-HOST` with the Render host, commit and push.
+2. Vercel -> Add New -> Project -> the repo, **Root Directory = `client`** -> Deploy.
+3. Back in Render set `APP_URL` to the Vercel URL. For Google sign-in add that URL to the OAuth client's authorized origins.
 
-## After deploying
-Register, then check Learn, Practice (runs code), Playground, and `/admin`.
-Free-tier hosts sleep when idle, so the first request after a pause can be slow.
+Then register with your `ADMIN_EMAILS` email and run one Practice challenge to confirm the runner works.
