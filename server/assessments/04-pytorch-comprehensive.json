@@ -1,0 +1,28 @@
+{
+ "slug": "pytorch-comprehensive",
+ "title": "PyTorch Comprehensive Exam",
+ "kind": "comprehensive",
+ "position": 4,
+ "description": "The full exam: theory (20%), coding (30%) and practical (50%). Wrong single-choice answers cost a quarter of a point and skipping is free. Limited attempts.",
+ "config": {
+  "time_limit_min": 90,
+  "pass_percent": 65,
+  "max_attempts": 2,
+  "negative_marking": 0.25,
+  "xp": 150,
+  "sections": [
+   {
+    "name": "theory",
+    "pick": 12
+   },
+   {
+    "name": "coding",
+    "pick": 3
+   },
+   {
+    "name": "practical",
+    "pick": 2
+   }
+  ]
+ }
+}

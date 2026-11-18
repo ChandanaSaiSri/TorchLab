@@ -1,0 +1,59 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: torchlab
+      POSTGRES_PASSWORD: torchlab
+      POSTGRES_DB: torchlab
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./server/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    ports:
+      - "5432:5432"
+    networks: [default]
+
+  # Executes user code. Sits on an *internal* network: no internet access.
+  runner:
+    build: ./runner
+    environment:
+      RUN_TIMEOUT: "20"
+      MAX_MEMORY_MB: "2048"
+      MAX_CONCURRENT: "2"
+    mem_limit: 3g
+    cpus: 2
+    pids_limit: 256
+    read_only: true
+    tmpfs:
+      - /tmp:size=128m
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    networks: [sandbox]
+
+  server:
+    build: ./server
+    environment:
+      DATABASE_URL: postgres://torchlab:torchlab@db:5432/torchlab
+      RUNNER_URL: http://runner:8000
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      PORT: "4000"
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+      SMTP_URL: ${SMTP_URL:-}
+      MAIL_FROM: ${MAIL_FROM:-TorchLab <no-reply@example.com>}
+      APP_URL: ${APP_URL:-http://localhost:5173}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-claude-sonnet-5-5}
+      AI_DAILY_LIMIT: ${AI_DAILY_LIMIT:-40}
+    depends_on: [db, runner]
+    ports:
+      - "4000:4000"
+    networks: [default, sandbox]
+
+networks:
+  default: {}
+  sandbox:
+    internal: true
+
+volumes:
+  pgdata:

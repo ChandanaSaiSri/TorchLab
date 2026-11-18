@@ -1,0 +1,1001 @@
+[
+ {
+  "qid": "t-ten-01",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "tensors"
+  ],
+  "data": {
+   "prompt": "What is the shape of `torch.zeros(2, 3, 4).sum(dim=1)`?",
+   "options": [
+    "(2, 3)",
+    "(2, 4)",
+    "(3, 4)",
+    "(2, 1, 4)"
+   ],
+   "answer": 1,
+   "explain": "Summing over dim 1 removes that dimension, leaving (2, 4).",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-ten-02",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "tensors"
+  ],
+  "data": {
+   "prompt": "Which call creates a tensor that SHARES memory with the NumPy array `a`?",
+   "options": [
+    "torch.tensor(a)",
+    "torch.from_numpy(a)",
+    "torch.tensor(a.tolist())",
+    "torch.clone(torch.tensor(a))"
+   ],
+   "answer": 1,
+   "explain": "`from_numpy` shares the buffer; `torch.tensor` always copies.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-ten-03",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "tensors"
+  ],
+  "data": {
+   "prompt": "`x = torch.arange(6); y = x.view(2, 3); y[0, 0] = 99`. What is `x[0]` now?",
+   "options": [
+    "0",
+    "99",
+    "An error is raised",
+    "It depends on the dtype"
+   ],
+   "answer": 1,
+   "explain": "A view shares storage with the original tensor, so the change shows in both.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-ten-04",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "tensors"
+  ],
+  "data": {
+   "prompt": "What is the broadcast result shape of tensors with shapes (5, 1, 4) and (3, 1)?",
+   "options": [
+    "(5, 3, 4)",
+    "(5, 1, 4)",
+    "(3, 4)",
+    "They cannot be broadcast"
+   ],
+   "answer": 0,
+   "explain": "Align from the right: (5,1,4) with (1,3,1) gives (5,3,4).",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-ten-05",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "tensors"
+  ],
+  "data": {
+   "prompt": "What is the default dtype of `torch.tensor([1, 2, 3])`?",
+   "options": [
+    "torch.float32",
+    "torch.int64",
+    "torch.int32",
+    "torch.float64"
+   ],
+   "answer": 1,
+   "explain": "Python integers give int64; Python floats give float32.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-ten-06",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "tensors"
+  ],
+  "data": {
+   "prompt": "Which call ALWAYS returns a copy of the data?",
+   "options": [
+    "x.view(-1)",
+    "x.transpose(0, 1)",
+    "x[0]",
+    "x.clone()"
+   ],
+   "answer": 3,
+   "explain": "`clone()` allocates new memory; the others return views when they can.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-ten-07",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "tensors"
+  ],
+  "data": {
+   "prompt": "What is the shape of `torch.randn(8, 4, 3) @ torch.randn(3, 5)`?",
+   "options": [
+    "(8, 4, 5)",
+    "(4, 5)",
+    "(8, 3, 5)",
+    "It raises an error"
+   ],
+   "answer": 0,
+   "explain": "matmul broadcasts over the batch dimension: (8,4,3) @ (3,5) -> (8,4,5).",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-ten-08",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "tensors"
+  ],
+  "data": {
+   "prompt": "For `x` with shape (3, 4), what is the shape of `x[:, 1]`?",
+   "options": [
+    "(3, 1)",
+    "(3,)",
+    "(4,)",
+    "(1, 4)"
+   ],
+   "answer": 1,
+   "explain": "Integer indexing removes the dimension, so a 1-D tensor of 3 elements remains.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-ten-09",
+  "section": "theory",
+  "type": "multi",
+  "tags": [
+   "tensors"
+  ],
+  "data": {
+   "prompt": "Which statements about memory layout are TRUE?",
+   "options": [
+    "`transpose` usually returns a non-contiguous tensor",
+    "`.view` needs a layout compatible with the requested shape",
+    "`.contiguous()` copies only when the tensor is not already contiguous",
+    "`.reshape` never copies data"
+   ],
+   "answers": [
+    0,
+    1,
+    2
+   ],
+   "explain": "`reshape` returns a view when possible but copies when it must.",
+   "points": 2
+  }
+ },
+ {
+  "qid": "t-ten-10",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "tensors"
+  ],
+  "data": {
+   "prompt": "What is the shape of `torch.zeros(1, 3, 1, 2).squeeze()`?",
+   "options": [
+    "(3, 2)",
+    "(1, 3, 2)",
+    "(3, 1, 2)",
+    "(1, 3, 1, 2)"
+   ],
+   "answer": 0,
+   "explain": "`squeeze()` removes every dimension of size 1.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-ten-11",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "tensors"
+  ],
+  "data": {
+   "prompt": "`a` and `b` both have shape (2, 3). What is the shape of `torch.stack([a, b])`?",
+   "options": [
+    "(4, 3)",
+    "(2, 6)",
+    "(2, 2, 3)",
+    "(2, 3, 2)"
+   ],
+   "answer": 2,
+   "explain": "`stack` adds a NEW dimension; `cat` joins along an existing one.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-ten-12",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "tensors"
+  ],
+  "data": {
+   "prompt": "What does the trailing underscore in a method like `x.add_(1)` indicate?",
+   "options": [
+    "The operation runs on the GPU",
+    "The operation modifies the tensor in place",
+    "The result is detached from autograd",
+    "The operation is lazy"
+   ],
+   "answer": 1,
+   "explain": "Underscore methods mutate their tensor instead of returning a new one.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-ten-13",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "tensors"
+  ],
+  "data": {
+   "prompt": "`logits` has shape (4, 10). What does `logits.argmax(dim=1)` return?",
+   "options": [
+    "A (4, 10) tensor of booleans",
+    "A (4,) tensor of class indices",
+    "A (10,) tensor of maxima",
+    "A scalar"
+   ],
+   "answer": 1,
+   "explain": "It returns, for each of the 4 rows, the index of the largest value.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-ten-14",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "tensors"
+  ],
+  "data": {
+   "prompt": "What happens with `torch.tensor([1, 2, 3]).mean()`?",
+   "options": [
+    "Returns 2.0",
+    "Returns 2",
+    "A RuntimeError: mean needs a floating point dtype",
+    "Returns tensor([2, 2, 2])"
+   ],
+   "answer": 2,
+   "explain": "`mean` is not defined for integer tensors; convert with `.float()` first.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-ten-15",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "tensors"
+  ],
+  "data": {
+   "prompt": "Which expression gives the number of elements in a tensor `x`?",
+   "options": [
+    "x.size",
+    "x.numel()",
+    "len(x.shape)",
+    "x.dim()"
+   ],
+   "answer": 1,
+   "explain": "`numel()` returns the total number of elements; `dim()` is the number of dimensions.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-aut-01",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "autograd"
+  ],
+  "data": {
+   "prompt": "What does `requires_grad=True` on a tensor do?",
+   "options": [
+    "Moves it to the GPU",
+    "Makes autograd record operations on it so gradients can be computed",
+    "Freezes its values",
+    "Converts it to float32"
+   ],
+   "answer": 1,
+   "explain": "Autograd only tracks operations involving tensors that require gradients.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-aut-02",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "autograd"
+  ],
+  "data": {
+   "prompt": "`x = torch.tensor(3.0, requires_grad=True); y = x ** 2; y.backward()`. What is `x.grad`?",
+   "options": [
+    "tensor(3.)",
+    "tensor(6.)",
+    "tensor(9.)",
+    "None"
+   ],
+   "answer": 1,
+   "explain": "dy/dx = 2x = 6.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-aut-03",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "autograd"
+  ],
+  "data": {
+   "prompt": "What happens if you call `loss.backward()` a second time on the same graph without `retain_graph=True`?",
+   "options": [
+    "Gradients are doubled silently",
+    "A RuntimeError because the graph buffers were freed",
+    "The graph is rebuilt automatically",
+    "Nothing"
+   ],
+   "answer": 1,
+   "explain": "Intermediate buffers are freed after the first backward pass.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-aut-04",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "autograd"
+  ],
+  "data": {
+   "prompt": "If you do not zero the gradients between two `backward()` calls, what happens to `p.grad`?",
+   "options": [
+    "It is overwritten",
+    "It accumulates (the new gradient is added)",
+    "It becomes None",
+    "It becomes zero"
+   ],
+   "answer": 1,
+   "explain": "PyTorch accumulates gradients so you can sum over micro-batches; call `zero_grad()` to reset.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-aut-05",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "autograd"
+  ],
+  "data": {
+   "prompt": "What does `with torch.no_grad():` do?",
+   "options": [
+    "Disables dropout",
+    "Stops autograd from recording operations inside the block",
+    "Deletes the model's gradients",
+    "Makes tensors immutable"
+   ],
+   "answer": 1,
+   "explain": "No graph is built, saving memory and time during evaluation.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-aut-06",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "autograd"
+  ],
+  "data": {
+   "prompt": "What does `t.detach()` return?",
+   "options": [
+    "A deep copy of the data",
+    "A tensor sharing data with `t` but cut off from the autograd graph",
+    "A tensor on the CPU",
+    "A tensor with zero gradient"
+   ],
+   "answer": 1,
+   "explain": "It shares storage but has no history, so gradients do not flow back through it.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-aut-07",
+  "section": "theory",
+  "type": "multi",
+  "tags": [
+   "autograd"
+  ],
+  "data": {
+   "prompt": "`w` and `b` are leaf tensors with requires_grad=True, `x` is a leaf without it, and `h = x @ w + b`; `loss = h.sum()`. After `loss.backward()` which have a populated `.grad`?",
+   "options": [
+    "w",
+    "b",
+    "x",
+    "h (an intermediate result)"
+   ],
+   "answers": [
+    0,
+    1
+   ],
+   "explain": "Only leaf tensors that require grad keep `.grad` by default; `h` would need `retain_grad()`.",
+   "points": 2
+  }
+ },
+ {
+  "qid": "t-aut-08",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "autograd"
+  ],
+  "data": {
+   "prompt": "`y = x * 2` where `x` is a vector with requires_grad=True. What does `y.backward()` do?",
+   "options": [
+    "Computes d y / d x as a vector",
+    "Raises an error: grad can be implicitly created only for scalar outputs",
+    "Sums y automatically",
+    "Returns the Jacobian"
+   ],
+   "answer": 1,
+   "explain": "For non-scalar outputs you must pass a `gradient` argument or reduce to a scalar first.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-trn-01",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "training"
+  ],
+  "data": {
+   "prompt": "Which order is correct for one training step?",
+   "options": [
+    "forward, backward, zero_grad, loss, step",
+    "zero_grad, forward, loss, backward, step",
+    "step, forward, loss, backward, zero_grad",
+    "forward, step, loss, zero_grad, backward"
+   ],
+   "answer": 1,
+   "explain": "Clear old gradients, compute predictions and loss, backpropagate, then update.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-trn-02",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "training"
+  ],
+  "data": {
+   "prompt": "What does `model.eval()` change?",
+   "options": [
+    "It disables gradient tracking",
+    "Layers like dropout and batch norm switch to inference behaviour",
+    "It freezes the weights",
+    "It moves the model to CPU"
+   ],
+   "answer": 1,
+   "explain": "`eval()` only sets the mode flag; use `torch.no_grad()` separately to skip autograd.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-trn-03",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "training"
+  ],
+  "data": {
+   "prompt": "Training loss keeps falling while validation loss starts rising. What is this the sign of?",
+   "options": [
+    "Underfitting",
+    "Overfitting",
+    "A learning rate that is too low",
+    "Vanishing gradients"
+   ],
+   "answer": 1,
+   "explain": "The model memorises the training set and generalises worse.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-trn-04",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "training"
+  ],
+  "data": {
+   "prompt": "Loss jumps around wildly or becomes NaN after a few steps. What is the most likely cause?",
+   "options": [
+    "Learning rate too high",
+    "Too many epochs",
+    "Too little data",
+    "Using eval mode"
+   ],
+   "answer": 0,
+   "explain": "Large steps overshoot the minimum and can diverge.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-trn-05",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "training"
+  ],
+  "data": {
+   "prompt": "Why shuffle the training data every epoch?",
+   "options": [
+    "To save memory",
+    "So batches are not always the same and the order does not bias the updates",
+    "To speed up the GPU",
+    "To avoid needing a validation set"
+   ],
+   "answer": 1,
+   "explain": "Shuffling decorrelates batches and gives better gradient estimates over time.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-trn-06",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "training"
+  ],
+  "data": {
+   "prompt": "What input does `nn.CrossEntropyLoss` expect?",
+   "options": [
+    "Probabilities after softmax and one-hot targets",
+    "Raw logits and integer class indices",
+    "Sigmoid outputs and float targets",
+    "Log-probabilities only"
+   ],
+   "answer": 1,
+   "explain": "It applies log-softmax internally; do not softmax your outputs first.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-trn-07",
+  "section": "theory",
+  "type": "multi",
+  "tags": [
+   "training"
+  ],
+  "data": {
+   "prompt": "Which of these help reduce overfitting?",
+   "options": [
+    "Dropout",
+    "Data augmentation",
+    "Early stopping on a validation set",
+    "Training much longer on the same data"
+   ],
+   "answers": [
+    0,
+    1,
+    2
+   ],
+   "explain": "Longer training on the same data usually makes overfitting worse.",
+   "points": 2
+  }
+ },
+ {
+  "qid": "t-trn-08",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "training"
+  ],
+  "data": {
+   "prompt": "Compared with a small batch, a very large batch gives...",
+   "options": [
+    "A noisier gradient estimate",
+    "A smoother gradient estimate per step, but fewer updates per epoch",
+    "No change in the number of updates",
+    "Guaranteed better generalisation"
+   ],
+   "answer": 1,
+   "explain": "Large batches are smoother but there are fewer steps per epoch.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-nn-01",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "nn"
+  ],
+  "data": {
+   "prompt": "What is the effect of stacking several Linear layers WITHOUT nonlinear activations between them?",
+   "options": [
+    "It can represent any function",
+    "It is equivalent to a single Linear layer",
+    "It always overfits",
+    "It needs more data"
+   ],
+   "answer": 1,
+   "explain": "A composition of linear maps is linear, so depth adds nothing without nonlinearity.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-nn-02",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "nn"
+  ],
+  "data": {
+   "prompt": "How many parameters does `nn.Linear(10, 5)` have?",
+   "options": [
+    "50",
+    "55",
+    "60",
+    "15"
+   ],
+   "answer": 1,
+   "explain": "10*5 weights plus 5 biases = 55.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-nn-03",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "nn"
+  ],
+  "data": {
+   "prompt": "What does ReLU output for inputs -3 and 2?",
+   "options": [
+    "0 and 2",
+    "-3 and 2",
+    "0 and 0",
+    "3 and 2"
+   ],
+   "answer": 0,
+   "explain": "ReLU(x) = max(0, x).",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-nn-04",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "nn"
+  ],
+  "data": {
+   "prompt": "Which activation squashes values into (0, 1) and is commonly used for binary probabilities?",
+   "options": [
+    "ReLU",
+    "Tanh",
+    "Sigmoid",
+    "GELU"
+   ],
+   "answer": 2,
+   "explain": "Sigmoid maps any real number into (0, 1).",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-nn-05",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "nn"
+  ],
+  "data": {
+   "prompt": "How does LayerNorm differ from BatchNorm?",
+   "options": [
+    "LayerNorm normalises across the features of each sample and does not depend on batch size",
+    "LayerNorm normalises across the batch",
+    "LayerNorm only works on images",
+    "There is no difference"
+   ],
+   "answer": 0,
+   "explain": "LayerNorm statistics are per sample, which suits sequences and small batches.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-nn-06",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "nn"
+  ],
+  "data": {
+   "prompt": "When you call `model(x)` on an `nn.Module`, which method does PyTorch ultimately run?",
+   "options": [
+    "__init__",
+    "forward",
+    "backward",
+    "train"
+   ],
+   "answer": 1,
+   "explain": "`__call__` runs hooks and then your `forward`.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-nn-07",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "nn"
+  ],
+  "data": {
+   "prompt": "Inside an `nn.Module`, `self.w = torch.randn(3, 3)` (plain tensor). Will `model.parameters()` include it?",
+   "options": [
+    "Yes, always",
+    "No, you must wrap it in nn.Parameter",
+    "Only on GPU",
+    "Only after training"
+   ],
+   "answer": 1,
+   "explain": "Only `nn.Parameter` attributes and sub-modules are registered.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-nn-08",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "nn"
+  ],
+  "data": {
+   "prompt": "With `nn.Dropout(p=0.5)` in training mode, by what factor are the surviving activations scaled?",
+   "options": [
+    "0.5",
+    "1",
+    "2",
+    "They are not scaled"
+   ],
+   "answer": 2,
+   "explain": "Inverted dropout multiplies survivors by 1/(1-p) = 2 so the expected activation stays the same.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-nn-09",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "nn"
+  ],
+  "data": {
+   "prompt": "Why is initialising all weights of a hidden layer to the same value (e.g. zeros) a problem?",
+   "options": [
+    "It makes the loss infinite",
+    "All neurons receive identical gradients and stay identical (symmetry)",
+    "It disables autograd",
+    "It uses too much memory"
+   ],
+   "answer": 1,
+   "explain": "Without symmetry breaking, neurons in a layer learn the same thing.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-nn-10",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "nn"
+  ],
+  "data": {
+   "prompt": "Which activations can suffer from vanishing gradients when inputs are large in magnitude?",
+   "options": [
+    "ReLU",
+    "Sigmoid and tanh",
+    "Identity",
+    "LeakyReLU"
+   ],
+   "answer": 1,
+   "explain": "Their slope approaches 0 in the saturated regions.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-cnn-01",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "cnn",
+   "nn"
+  ],
+  "data": {
+   "prompt": "How many parameters does `nn.Conv2d(3, 16, kernel_size=3)` have (with bias)?",
+   "options": [
+    "432",
+    "448",
+    "144",
+    "160"
+   ],
+   "answer": 1,
+   "explain": "16 * (3*3*3) weights + 16 biases = 432 + 16 = 448.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-cnn-02",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "cnn",
+   "nn"
+  ],
+  "data": {
+   "prompt": "A 32x32 input goes through `Conv2d(kernel_size=3, stride=2, padding=1)`. What is the output height/width?",
+   "options": [
+    "32",
+    "30",
+    "16",
+    "15"
+   ],
+   "answer": 2,
+   "explain": "(32 + 2 - 3) // 2 + 1 = 16.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-cnn-03",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "cnn",
+   "nn"
+  ],
+  "data": {
+   "prompt": "What is a main purpose of max pooling?",
+   "options": [
+    "Add learnable parameters",
+    "Reduce spatial size and add some tolerance to small shifts",
+    "Normalise the batch",
+    "Increase the number of channels"
+   ],
+   "answer": 1,
+   "explain": "Pooling downsamples while keeping the strongest responses.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-cnn-04",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "cnn",
+   "nn"
+  ],
+  "data": {
+   "prompt": "What is the receptive field of two stacked 3x3 convolutions (stride 1) on the input?",
+   "options": [
+    "3x3",
+    "5x5",
+    "6x6",
+    "9x9"
+   ],
+   "answer": 1,
+   "explain": "Each extra 3x3 layer grows the field by 2: 3 -> 5.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-att-01",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "attention",
+   "nn"
+  ],
+  "data": {
+   "prompt": "In self-attention, where do queries, keys and values come from?",
+   "options": [
+    "Three different datasets",
+    "Linear projections of the same input sequence",
+    "The loss function",
+    "Random noise"
+   ],
+   "answer": 1,
+   "explain": "Self-attention projects the same sequence into Q, K and V.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-att-02",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "attention",
+   "nn"
+  ],
+  "data": {
+   "prompt": "What does a causal mask do in a language model?",
+   "options": [
+    "Hides padding tokens",
+    "Stops each position from attending to future positions",
+    "Removes the softmax",
+    "Normalises the outputs"
+   ],
+   "answer": 1,
+   "explain": "Future scores are set to -inf, so next-token prediction cannot peek ahead.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-att-03",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "attention",
+   "nn"
+  ],
+  "data": {
+   "prompt": "How does the compute and memory of full self-attention grow with sequence length n?",
+   "options": [
+    "Linearly",
+    "Quadratically",
+    "Logarithmically",
+    "It does not depend on n"
+   ],
+   "answer": 1,
+   "explain": "Every token attends to every other token: an n x n score matrix.",
+   "points": 1
+  }
+ },
+ {
+  "qid": "t-att-04",
+  "section": "theory",
+  "type": "mcq",
+  "tags": [
+   "attention",
+   "nn"
+  ],
+  "data": {
+   "prompt": "Why use multiple attention heads?",
+   "options": [
+    "To make training deterministic",
+    "To let the model attend to different kinds of relationships in separate subspaces",
+    "To reduce the vocabulary",
+    "To avoid positional encodings"
+   ],
+   "answer": 1,
+   "explain": "Each head has its own projections and can specialise.",
+   "points": 1
+  }
+ }
+]

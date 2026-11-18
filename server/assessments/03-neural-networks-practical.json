@@ -1,0 +1,31 @@
+{
+ "slug": "neural-networks-practical",
+ "title": "Neural Networks Practical",
+ "kind": "practical",
+ "position": 3,
+ "description": "Hands-on test: build and train models that must reach an accuracy or error target on data they have not seen, plus a few theory questions.",
+ "config": {
+  "time_limit_min": 50,
+  "pass_percent": 60,
+  "max_attempts": 3,
+  "negative_marking": 0,
+  "xp": 80,
+  "sections": [
+   {
+    "name": "theory",
+    "pick": 6,
+    "tags": [
+     "nn",
+     "cnn"
+    ]
+   },
+   {
+    "name": "practical",
+    "pick": 2,
+    "tags": [
+     "nn"
+    ]
+   }
+  ]
+ }
+}

@@ -1,0 +1,23 @@
+{
+ "slug": "tensor-fundamentals",
+ "title": "Tensor Fundamentals Test",
+ "kind": "conceptual",
+ "position": 1,
+ "description": "Conceptual test on tensors: shapes, dtypes, views vs copies, broadcasting and indexing. Questions are drawn at random from a larger pool.",
+ "config": {
+  "time_limit_min": 20,
+  "pass_percent": 70,
+  "max_attempts": 3,
+  "negative_marking": 0,
+  "xp": 40,
+  "sections": [
+   {
+    "name": "theory",
+    "pick": 12,
+    "tags": [
+     "tensors"
+    ]
+   }
+  ]
+ }
+}

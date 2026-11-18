@@ -1,0 +1,1 @@
+-- Moved: the schema now lives in server/schema.sql (applied by the API on every start). This file is obsolete and can be deleted.

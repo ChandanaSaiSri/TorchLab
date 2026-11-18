@@ -1,0 +1,33 @@
+{
+ "slug": "autograd-training",
+ "title": "Autograd & Training Loop Test",
+ "kind": "coding",
+ "position": 2,
+ "description": "A short theory check followed by three coding tasks on gradients and the training loop. Coding tasks are graded by running hidden test cases, with partial credit.",
+ "config": {
+  "time_limit_min": 45,
+  "pass_percent": 60,
+  "max_attempts": 3,
+  "negative_marking": 0,
+  "xp": 60,
+  "sections": [
+   {
+    "name": "theory",
+    "pick": 6,
+    "tags": [
+     "autograd",
+     "training"
+    ]
+   },
+   {
+    "name": "coding",
+    "pick": 3,
+    "tags": [
+     "training",
+     "autograd",
+     "tensors"
+    ]
+   }
+  ]
+ }
+}
