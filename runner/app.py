@@ -30,12 +30,16 @@ MAX_MEM = int(os.getenv("MAX_MEMORY_MB", "2048")) * 1024 * 1024
 MAX_OUT = 50_000  # characters returned per stream
 slots = threading.BoundedSemaphore(int(os.getenv("MAX_CONCURRENT", "2")))
 
-# Import torch once at startup so the OS file cache is warm; otherwise the first
-# user program can spend most of its time budget just loading PyTorch.
-try:
-    import torch  # noqa: F401
-except ImportError:
-    pass
+# Optionally import torch once at startup so the OS file cache is warm (WARM_TORCH=1). It is off by default:
+# the parent process then stays tiny, which matters on small hosts (a loaded torch costs ~300 MB of RAM here).
+if os.getenv("WARM_TORCH") == "1":
+    try:
+        import torch  # noqa: F401
+    except ImportError:
+        pass
+
+# Stop a program whose private memory passes this many MB (0 = off). Protects a small host from being OOM-killed.
+MAX_PROGRAM_MB = int(os.getenv("MAX_PROGRAM_MB", "0"))
 
 app = FastAPI(title="TorchLab runner")
 
@@ -89,9 +93,13 @@ def _collect_images(workdir: str):
 
 @app.get("/health")
 def health():
-    import torch
+    from importlib import metadata
 
-    return {"ok": True, "torch": torch.__version__, "cuda": torch.cuda.is_available()}
+    try:
+        version = metadata.version("torch")
+    except metadata.PackageNotFoundError:
+        version = None
+    return {"ok": True, "torch": version}
 
 
 @app.get("/info")
@@ -104,24 +112,42 @@ def info():
     for name in ("torch", "numpy", "matplotlib", "pandas", "scipy", "sklearn", "torchvision"):
         if importlib.util.find_spec(name) is None:
             continue
+        dist = {"sklearn": "scikit-learn"}.get(name, name)
         try:
-            libs[name] = getattr(__import__(name), "__version__", "installed")
+            from importlib import metadata
+
+            libs[name] = metadata.version(dist)
         except Exception:
             libs[name] = "installed"
+    # Never import torch here: that would load it into this long-lived process. Learner code runs on CPU.
     device = "CPU"
-    try:
-        import torch
-
-        if torch.cuda.is_available():
-            device = "CUDA: " + torch.cuda.get_device_name(0)
-    except Exception:
-        pass
     return {
         "python": platform.python_version(),
         "device": device,
         "libraries": libs,
         "limits": {"timeoutSeconds": TIMEOUT, "memoryMb": MAX_MEM // (1024 * 1024), "outputChars": MAX_OUT, "concurrent": int(os.getenv("MAX_CONCURRENT", "2"))},
     }
+
+
+def _private_mb(pid):
+    """Private (non-shared, non-file) memory of a process in MB, from /proc. None if unreadable."""
+    try:
+        with open(f"/proc/{pid}/status") as f:
+            for line in f:
+                if line.startswith("RssAnon:"):
+                    return int(line.split()[1]) // 1024
+    except OSError:
+        return None
+    return None
+
+
+def _watch_memory(proc, done, flag):
+    while not done.wait(0.1):
+        mb = _private_mb(proc.pid)
+        if mb is not None and mb > MAX_PROGRAM_MB:
+            flag["oom"] = True
+            proc.kill()
+            return
 
 
 @app.post("/run")
@@ -146,24 +172,38 @@ def run(req: RunRequest):
                 env = {k: v for k, v in os.environ.items() if k.upper() in keep}
             else:
                 env = {"PATH": "/usr/local/bin:/usr/bin", "HOME": workdir}
-            env.update({"OMP_NUM_THREADS": "2", "MPLBACKEND": "Agg", "PYTHONDONTWRITEBYTECODE": "1"})
+            env.update({"OMP_NUM_THREADS": os.getenv("OMP_THREADS", "2"), "MPLBACKEND": "Agg", "PYTHONDONTWRITEBYTECODE": "1"})
             start = time.monotonic()
+            oom = False
             try:
-                p = subprocess.run(
+                proc = subprocess.Popen(
                     [sys.executable, "-E", "-s", path],
                     cwd=workdir,
                     env=env,
-                    capture_output=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
                     text=True,
-                    timeout=TIMEOUT,
                     preexec_fn=None if (IS_WINDOWS or resource is None) else _limits,
                 )
-                status = "success" if p.returncode == 0 else "error"
-                out, err = p.stdout, p.stderr
-            except subprocess.TimeoutExpired as e:
-                status = "timeout"
-                out = (e.stdout or b"").decode() if isinstance(e.stdout, bytes) else (e.stdout or "")
-                err = f"Execution timed out after {TIMEOUT}s"
+                done = threading.Event()
+                flag = {"oom": False}
+                if MAX_PROGRAM_MB and not IS_WINDOWS:
+                    threading.Thread(target=_watch_memory, args=(proc, done, flag), daemon=True).start()
+                try:
+                    out, err = proc.communicate(timeout=TIMEOUT)
+                    status = "success" if proc.returncode == 0 else "error"
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+                    out, err = proc.communicate()
+                    status = "timeout"
+                    err = f"Execution timed out after {TIMEOUT}s"
+                finally:
+                    done.set()
+                if flag["oom"]:
+                    status = "error"
+                    err = f"Your program used more than {MAX_PROGRAM_MB} MB of memory and was stopped. Try smaller tensors or batches."
+            except OSError:
+                raise HTTPException(status_code=500, detail="Could not start the program")
             ms = int((time.monotonic() - start) * 1000)
             return {
                 "status": status,
