@@ -14,7 +14,7 @@ export async function runProgram(code, files = {}, data = {}) {
       method: 'POST',
       headers: { 'content-type': 'application/json', ...AUTH },
       body: JSON.stringify({ code, files, data }),
-      signal: AbortSignal.timeout(40000),
+      signal: AbortSignal.timeout(Number(process.env.RUNNER_TIMEOUT_MS) || 40000),
     });
   } catch {
     throw new RunnerError('Code runner is unavailable right now.');

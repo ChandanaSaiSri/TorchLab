@@ -1,29 +1,28 @@
-# Deploying TorchLab for free
+# Deploying TorchLab for free (no card)
 
-| Part | Host | Free tier notes |
+| Part | Host | Notes |
 |---|---|---|
-| Website | Vercel | Hobby plan |
-| API | Render (Docker web service) | Sleeps after 15 min idle; ~1 min to wake |
+| Website | Vercel (Hobby) | free |
+| API + code runner | Render, two free web services | each sleeps after 15 min idle; first request after a pause takes about a minute |
 | Database | Neon Postgres | 0.5 GB, no expiry |
-| Code runner | Hugging Face Space (Docker) | 16 GB RAM CPU; sleeps after ~48 h idle |
 
-Set one secret string (call it `RUNNER_TOKEN`, any long random text) and reuse it in steps 2 and 3.
+The runner is tuned to fit Render's free 512 MB: PyTorch is no longer kept loaded in the server process, one program runs at a time (`MAX_CONCURRENT=1`), and a program that uses more than `MAX_PROGRAM_MB` (380) of private memory is stopped with a clear message instead of crashing the host. Very large tensors or models will hit that limit; that is expected on a free host. If runs fail with "out of memory" or the runner restarts, move the runner to a plan with more RAM (Render Starter, 2 GB) and raise `MAX_PROGRAM_MB` and `MAX_CONCURRENT`.
 
 ## 1. Database (Neon)
-neon.tech -> create a project -> copy the connection string (ends with `?sslmode=require`). The schema applies itself when the API starts.
+neon.tech -> new project -> copy the connection string (ends with `?sslmode=require`). The schema applies itself when the API starts.
 
-## 2. Code runner (Hugging Face Space)
-1. huggingface.co -> New Space -> SDK **Docker** (Blank) -> CPU basic (free). Make it public.
-2. Upload the contents of the `runner/` folder (Dockerfile, app.py, requirements.txt, README.md) to the Space's files.
-3. Space Settings -> Variables and secrets -> New secret `RUNNER_TOKEN`.
-4. When it shows "Running", open `https://<user>-<space>.hf.space/health`. The Space URL is shown under "Embed this Space".
+## 2. Runner and API (Render)
+Render dashboard -> New -> Blueprint -> pick the repo. It creates `torchlab-runner` and `torchlab-api`. Fill in:
+- `DATABASE_URL`: the Neon string
+- `ADMIN_EMAILS`: your email
+- `APP_URL`: a placeholder for now
+- `RUNNER_URL`: leave blank at first. After the runner finishes building, copy its address (like `https://torchlab-runner-xxxx.onrender.com`), set it on `torchlab-api` -> Environment, and save.
+The runner secret is generated and shared between the two services automatically.
+Checks: `https://<runner>.onrender.com/health` and `https://<api>.onrender.com/api/health`.
 
-## 3. API (Render)
-Dashboard -> New -> Blueprint -> pick the repo. Fill in `DATABASE_URL`, `RUNNER_URL` (the .hf.space URL), `RUNNER_TOKEN`, `ADMIN_EMAILS`, `APP_URL` (placeholder for now). Open `https://<api>.onrender.com/api/health` -> `{"ok":true}`.
-
-## 4. Website (Vercel)
-1. In `client/vercel.json` replace `YOUR-API-HOST` with the Render host, commit and push.
+## 3. Website (Vercel)
+1. In `client/vercel.json` replace `YOUR-API-HOST` with the API host (no `https://`), commit and push.
 2. Vercel -> Add New -> Project -> the repo, **Root Directory = `client`** -> Deploy.
-3. Back in Render set `APP_URL` to the Vercel URL. For Google sign-in add that URL to the OAuth client's authorized origins.
+3. In Render set the API's `APP_URL` to the Vercel URL. For Google sign-in add that URL to the OAuth client's authorized origins.
 
-Then register with your `ADMIN_EMAILS` email and run one Practice challenge to confirm the runner works.
+Then register with your `ADMIN_EMAILS` email and run one Practice challenge. The first run after an idle period may take a minute while both services wake.

@@ -1,6 +1,24 @@
-# Render Blueprint (free tier): creates only the API. The database is Neon (free) and the code runner is a
-# Hugging Face Space (free), see DEPLOY.md. Render dashboard -> New -> Blueprint -> pick this repo.
+# Render Blueprint, all on the free plan (no card needed): the code runner and the API.
+# The database is Neon (free) and the website is Vercel (free). See DEPLOY.md.
+# Render dashboard -> New -> Blueprint -> pick this repo.
 services:
+  - type: web
+    name: torchlab-runner
+    runtime: docker
+    dockerfilePath: ./runner/Dockerfile
+    dockerContext: ./runner
+    plan: free            # 512 MB RAM: the settings below keep one program at a time under that
+    healthCheckPath: /health
+    envVars:
+      - key: RUNNER_TOKEN
+        generateValue: true
+      - key: MAX_CONCURRENT
+        value: "1"
+      - key: MAX_PROGRAM_MB
+        value: "380"      # a program using more private memory than this is stopped with a friendly message
+      - key: OMP_THREADS
+        value: "1"
+
   - type: web
     name: torchlab-api
     runtime: docker
@@ -15,12 +33,14 @@ services:
         value: "1"
       - key: JWT_SECRET
         generateValue: true
+      - key: RUNNER_TIMEOUT_MS
+        value: "90000"    # the free runner also sleeps; allow time for it to wake on the first run
+      - key: RUNNER_TOKEN
+        fromService: { type: web, name: torchlab-runner, envVarKey: RUNNER_TOKEN }
+      - key: RUNNER_URL
+        sync: false       # https://torchlab-runner-xxxx.onrender.com (shown on the runner's page)
       - key: DATABASE_URL
         sync: false       # Neon connection string
-      - key: RUNNER_URL
-        sync: false       # https://<user>-<space>.hf.space
-      - key: RUNNER_TOKEN
-        sync: false       # same secret you set on the Hugging Face Space
       - key: ADMIN_EMAILS
         sync: false       # your email
       - key: APP_URL
